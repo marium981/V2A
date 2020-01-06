@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">V2A</string>
+    <string name="btn_streaming_example">Streaming Example</string>
+    <string name="btn_downloading_example">Downloading Example</string>
+    <string name="btn_update">Update Youtube-DL</string>
+    <string name="btn_start_stream">Start Stream</string>
+    <string name="btn_start_download">Start Download</string>
+    <string name="url_hint">enter url here</string>
+    <string name="url_error">enter a valid url</string>
+    <string name="start">Do the thing</string>
+    <string name="download_start">Starting Download</string>
+    <string name="download_complete">Download Complete</string>
+    <string name="download_failed">Download Failed</string>
+    <string name="format">Audio Format</string>
+    <string name="quality">Audio Quality</string>
+    <string name="tobeDonwloaded">To be Downloaded</string>
+    <string name="downloads">Downloads</string>
+    <string-array name="format_types">
+        <item>mp3</item>
+        <item>aac</item>
+        <item>flac</item>
+    </string-array>
+
+    <string-array name="format_value">
+        <item>mp3</item>
+        <item>aac</item>
+        <item>flac</item>
+    </string-array>
+
+    <string-array name="quality_types">
+        <item>128K</item>
+        <item>192K</item>
+        <item>256K</item>
+        <item>320K</item>
+    </string-array>
+
+    <string-array name="quality_value">
+        <item>128K</item>
+        <item>192K</item>
+        <item>256K</item>
+        <item>320K</item>
+    </string-array>
+
+
+    <string name="format_default">mp3</string>
+    <string name="quality_default">256K</string>
+    <string name="format_summary">mp3</string>
+    <string name="quality_summary">256K</string>
+</resources>

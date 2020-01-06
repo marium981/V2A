@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <ListPreference
+        android:key="preference_format"
+        android:title="@string/format"
+        android:entries="@array/format_types"
+        android:entryValues="@array/format_value"
+        android:defaultValue="@string/format_default"
+        android:summary="@string/format_summary">
+
+    </ListPreference>
+
+    <ListPreference
+        android:key="preference_quality"
+        android:title="@string/quality"
+        android:entries="@array/quality_types"
+        android:entryValues="@array/quality_value"
+        android:defaultValue="@string/quality_default"
+        android:summary="@string/quality_summary">
+
+    </ListPreference>
+
+</PreferenceScreen>
