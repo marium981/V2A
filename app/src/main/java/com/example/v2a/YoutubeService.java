@@ -2,7 +2,6 @@ package com.example.v2a;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -31,6 +30,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -81,6 +81,7 @@ public class YoutubeService extends Service {
     public static final String CHECK_BOX = "preference_box";
     public String quality = null;
     public String format = null;
+    String choice = null;
 
     ArrayList<String> list = new ArrayList<>();
 
@@ -117,9 +118,14 @@ public class YoutubeService extends Service {
 
 
         if(intent!=null){
+
+
             link = intent.getStringExtra("Link");
+            //choice = intent.getStringExtra("Choice");
+            //System.out.println(choice);
             list.add(link);
             if(link!=null){
+
                 //System.out.println(link);
                 Toast.makeText(this, "Starting Download", Toast.LENGTH_SHORT).show();
                 startDownload(link);
@@ -142,7 +148,6 @@ public class YoutubeService extends Service {
 
 
 
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(YoutubeService.this);
         quality = sharedPreferences.getString(AUDIO_QUALITY, "0");
         format = sharedPreferences.getString(AUDIO_FORMAT, "0");
@@ -154,15 +159,22 @@ public class YoutubeService extends Service {
             String link1 = list.get(i);
             YoutubeDLRequest request = new YoutubeDLRequest(link1);
             File youtubeDLDir = getDownloadLocation();
-            request.setOption("--update");
-            request.setOption("-x");
-            request.setOption("--audio-format", format);
-            request.setOption("--audio-quality", quality);
-            request.setOption("--prefer-ffmpeg");
-            request.setOption("--add-metadata");
-            request.setOption("--metadata-from-title", "%(artist)s - %(title)s");
-            request.setOption("--embed-thumbnail");
-            request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s-%(id)s.%(ext)s");
+                    request.setOption("--update");
+                    request.setOption("--prefer-ffmpeg");
+                    request.setOption("-x");
+                    request.setOption("--audio-format", format);
+                    request.setOption("--audio-quality", quality);
+                    request.setOption("--add-metadata");
+                    request.setOption("--metadata-from-title", "%(artist)s - %(title)s");
+                    if(format.equals("mp3")|| format.equals("m4a")) {
+                        request.setOption("--embed-thumbnail");
+                    }
+                    request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s-%(id)s.%(ext)s");
+
+                    request.setOption("--update");
+                    request.setOption("--prefer-ffmpeg");
+
+
 
 
             downloading = true;

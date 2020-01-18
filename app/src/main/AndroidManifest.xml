@@ -32,6 +32,11 @@
             android:parentActivityName=".MainActivity">
         </activity>
 
+        <activity android:name=".VideoActivity"
+            android:label="Download Video"
+            android:parentActivityName=".MainActivity">
+        </activity>
+
         <activity
             android:name=".YoutubeActivity"
             android:label="YouTube Converter"></activity>

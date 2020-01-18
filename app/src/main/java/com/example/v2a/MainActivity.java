@@ -29,12 +29,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     int PICKFILE_RESULT_CODE = 1;
     String value1;
     InputStream in = null;
+    FloatingActionsMenu fmenu = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,43 +73,9 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        /**
-        if(data!=null) {
-            String tag = "android:switcher:" + R.id.viewpager + ":" + 1;
-            toBeDownloadedFragment f = (toBeDownloadedFragment) getSupportFragmentManager().findFragmentByTag(tag);
-            //f.pathReciver(data.getPath());
-            //System.out.println((data.getPath()));
-            File file = new File(data.toString());
-            File path = new File(file.getAbsolutePath());
-            System.out.println(path);
-            //String[] filePathColon={MediaStore.Files.FileColumns.DATA};
-            //Cursor cursr=getContentResolver().query(data, null, null, null, null);
-            //cursr.getColumnCount();
-            //System.out.println(cursr.getColumnCount());
-            //cursr.moveToNext();
-            //int columnindex=cursr.getColumnIndex(filePathColon[0]);
-            //filepath=cursr.getString(columnindex);
-            //cursr.close();
 
-            String result;
-            Cursor cursor = this.getContentResolver().query(data, null,
-                    null, null, null);
+        fmenu = (FloatingActionsMenu) findViewById(R.id.fmenu);
 
-            if (cursor == null) { // Source is Dropbox or other similar local file
-                // path
-                result = data.getPath();
-            } else {
-                cursor.moveToFirst();
-                    int idx = cursor
-                            .getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                    System.out.println(idx);
-                    result = cursor.getString(idx+1);
-                cursor.close();
-            }
-            //f.pathReciver(result);
-            Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
-        }
-         */
 
         FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
         fab2.setOnClickListener(new View.OnClickListener() {
@@ -117,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fab3 = (FloatingActionButton) findViewById(R.id.fab3);
+        FloatingActionButton fab3 = (FloatingActionButton) findViewById(R.id.fab1);
         fab3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                Intent intent = new Intent(MainActivity.this, VideoActivity.class);
                 startActivity(intent);
             }
         });
@@ -146,8 +115,10 @@ public class MainActivity extends AppCompatActivity {
             Bundle bundle = new Bundle();
             bundle.putParcelable("Input", data);
             df.setArguments(bundle);
-            t.add(df, tag);
+            //t.add(df, tag);
+            t.replace(R.id.viewpager, df);
             t.commit();
+
         }
     }
 
@@ -170,6 +141,11 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.import1:
                 importCSV();
+                return true;
+
+            case R.id.settings:
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -306,31 +282,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("Link", link);
         startService(intent);
     }
-    /**@Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String[] projection = {
-                SongContract.SongEntry.COLUMN_ID,
-                SongContract.SongEntry.COLUMN_SONG_NAME,
-                SongContract.SongEntry.COLUMN_SONG_LINK
-        };
 
-        return new CursorLoader(this,
-                SongContract.SongEntry.CONTENT_URI,
-                projection,
-                null,
-                null,
-                null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mCursorAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mCursorAdapter.swapCursor(null);
-    }*/
 
 
     public class ExportDatabaseCSVTask extends AsyncTask<String, Void, Boolean> {
@@ -383,5 +335,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    public void onBackPressed() {
+        if(fmenu.isExpanded()){
+            fmenu.collapse();
+        }else {
+            super.onBackPressed();
+        }
+    }
+
+
 
 }

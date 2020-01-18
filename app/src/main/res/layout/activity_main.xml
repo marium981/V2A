@@ -24,6 +24,7 @@
 
 
     <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/fmenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -49,10 +50,11 @@
             android:layout_height="wrap_content"
             app:fab_colorNormal="@color/colorPrimary"
             app:fab_colorPressed="@color/colorPrimary"
-            app:fab_icon="@drawable/ic_settings_black_24dp"
-            android:id="@+id/fab3"
+            app:fab_icon="@drawable/ic_video"
+            android:id="@+id/fab1"
             app:fab_size="normal"
-            app:fab_title="Settings"/>
+            app:fab_title="Video Download"/>
+
 
 
     </com.getbase.floatingactionbutton.FloatingActionsMenu>

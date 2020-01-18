@@ -167,7 +167,7 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
         if(downloading){
             builder.setContentTitle(list.size()+ " Files Downloading");
         }
-
+        Toast.makeText(this, "Starting Download", Toast.LENGTH_SHORT).show();
 
             showStart();
             YoutubeDLRequest request = new YoutubeDLRequest(url);
@@ -179,7 +179,9 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
             request.setOption("--prefer-ffmpeg");
             request.setOption("--add-metadata");
             request.setOption("--metadata-from-title", "%(artist)s - %(title)s");
+            if(format.equals("mp3")|| format.equals("m4a")) {
             request.setOption("--embed-thumbnail");
+            }
             request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s-%(id)s.%(ext)s");
 
 

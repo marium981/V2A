@@ -15,4 +15,8 @@
     <item
         android:id="@+id/import1"
         android:title="Import"/>
+
+    <item
+        android:id="@+id/settings"
+        android:title="Settings"/>
 </menu>

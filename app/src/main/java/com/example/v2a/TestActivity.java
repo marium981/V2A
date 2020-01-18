@@ -19,6 +19,7 @@ public class TestActivity extends Activity {
     String value1;
     public String format = null;
     public String quality = null;
+    String choice = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +39,36 @@ public class TestActivity extends Activity {
         }*/
 
 
+        /**AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setTitle("V2A");
+        //builder1.setMessage("Audio or Video");
+        String[] choices = getApplicationContext().getResources().getStringArray(R.array.choices);
+        builder1.setItems(choices, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(dialog!=null) {
+                    String selected = choices[which];
+                    System.out.println(selected);
+                    choice = selected;
+                }
+            }
+        });
+
+        builder1.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alert = builder1.create();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            alert.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
+        }else{
+            alert.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        }
+        alert.show();*/
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -49,6 +80,7 @@ public class TestActivity extends Activity {
 
                     Intent intent = new Intent(this, YoutubeService.class);
                     intent.putExtra("Link", value1);
+                    //intent.putExtra("Choice", choice);
                     startService(intent);
                     finish();
                 }
@@ -88,6 +120,7 @@ public class TestActivity extends Activity {
     public void intent(String value1){
         Intent intent = new Intent(this, YoutubeService.class);
         intent.putExtra("Link", value1);
+        //intent.putExtra("Choice", choice);
         startService(intent);
         finish();
     }

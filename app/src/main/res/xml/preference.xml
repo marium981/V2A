@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory
+        android:title = "Audio Settings">
 
     <ListPreference
         android:key="preference_format"
@@ -21,5 +23,32 @@
         android:summary="@string/quality_summary">
 
     </ListPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title = "Video Settings">
+
+        <ListPreference
+            android:key="preference_format_video"
+            android:title="@string/format_video"
+            android:entries="@array/format_types_video"
+            android:entryValues="@array/format_value_video"
+            android:defaultValue="@string/format_default_video"
+            android:summary="@string/format_summary_video">
+
+        </ListPreference>
+
+        <ListPreference
+            android:key="preference_quality_video"
+            android:title="@string/quality_video"
+            android:entries="@array/quality_types_video"
+            android:entryValues="@array/quality_value_video"
+            android:defaultValue="@string/quality_default_video"
+            android:summary="@string/quality_summary_video">
+
+        </ListPreference>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

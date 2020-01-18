@@ -12,19 +12,37 @@
     <string name="download_complete">Download Complete</string>
     <string name="download_failed">Download Failed</string>
     <string name="format">Audio Format</string>
+    <string name="format_video">Video Format</string>
     <string name="quality">Audio Quality</string>
+    <string name="quality_video">Video Quality</string>
     <string name="tobeDonwloaded">To be Downloaded</string>
     <string name="downloads">Downloads</string>
     <string-array name="format_types">
         <item>mp3</item>
         <item>aac</item>
-        <item>flac</item>
+        <item>flv</item>
+        <item>m4a</item>
+    </string-array>
+
+    <string-array name="format_types_video">
+        <item>3gp</item>
+        <item>flv</item>
+        <item>mp4</item>
+        <item>webm</item>
+    </string-array>
+
+    <string-array name="format_value_video">
+        <item>3gp</item>
+        <item>flv</item>
+        <item>mp4</item>
+        <item>webm</item>
     </string-array>
 
     <string-array name="format_value">
         <item>mp3</item>
         <item>aac</item>
-        <item>flac</item>
+        <item>flv</item>
+        <item>m4a</item>
     </string-array>
 
     <string-array name="quality_types">
@@ -32,6 +50,25 @@
         <item>192K</item>
         <item>256K</item>
         <item>320K</item>
+    </string-array>
+
+    <string-array name="choices">
+        <item>Audio</item>
+        <item>Video</item>
+    </string-array>
+
+    <string-array name="quality_types_video">
+        <item>360p</item>
+        <item>480p</item>
+        <item>720p</item>
+        <item>1080p</item>
+    </string-array>
+
+    <string-array name="quality_value_video">
+        <item>360p</item>
+        <item>480p</item>
+        <item>720p</item>
+        <item>1080p</item>
     </string-array>
 
     <string-array name="quality_value">
@@ -43,7 +80,11 @@
 
 
     <string name="format_default">mp3</string>
+    <string name="format_default_video">mp4</string>
     <string name="quality_default">256K</string>
+    <string name="quality_default_video">720p</string>
     <string name="format_summary">mp3</string>
+    <string name="format_summary_video">mp4</string>
     <string name="quality_summary">256K</string>
+    <string name="quality_summary_video">720p</string>
 </resources>

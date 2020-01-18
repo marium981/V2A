@@ -28,6 +28,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -88,11 +90,19 @@ public class toBeDownloadedFragment extends Fragment implements LoaderManager.Lo
         }
 
 
-
+        FloatingActionsMenu fmenu = (FloatingActionsMenu)getActivity().findViewById(R.id.fmenu);
         // Find the ListView which will be populated with the song data
         ListView songListView = (ListView) rootview.findViewById(R.id.list);
         //Toast.makeText(getActivity(), "YAYY", Toast.LENGTH_SHORT).show();
-
+        songListView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(fmenu.isExpanded()){
+                    fmenu.collapse();
+                }
+                return false;
+            }
+        });
         // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
         View emptyView = rootview.findViewById(R.id.empty_view);
         songListView.setEmptyView(emptyView);

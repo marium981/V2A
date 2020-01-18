@@ -11,7 +11,9 @@ import android.support.annotation.Nullable;
 public class SettingsFragment extends PreferenceFragment {
 
     public static final String AUDIO_QUALITY = "preference_quality";
+    public static final String VIDEO_QUALITY = "preference_quality_video";
     public static final String AUDIO_FORMAT = "preference_format";
+    public static final String VIDEO_FORMAT = "preference_format_video";
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
     @Override
@@ -32,6 +34,16 @@ public class SettingsFragment extends PreferenceFragment {
                     Preference qualityPref = findPreference(key);
                     qualityPref.setSummary(sharedPreferences.getString(key, ""));
                 }
+
+                if(key.equals(VIDEO_QUALITY)){
+                    Preference qualityPrefvideo = findPreference(key);
+                    qualityPrefvideo.setSummary(sharedPreferences.getString(key, ""));
+                }
+
+                if(key.equals(VIDEO_FORMAT)){
+                    Preference formatPrefVideo = findPreference(key);
+                    formatPrefVideo.setSummary(sharedPreferences.getString(key, ""));
+                }
             }
         };
     }
@@ -46,6 +58,12 @@ public class SettingsFragment extends PreferenceFragment {
 
         Preference formatPref = findPreference(AUDIO_FORMAT);
         formatPref.setSummary(getPreferenceScreen().getSharedPreferences().getString(AUDIO_FORMAT, ""));
+
+        Preference formatPrefvideo = findPreference(VIDEO_FORMAT);
+        formatPrefvideo.setSummary(getPreferenceScreen().getSharedPreferences().getString(VIDEO_FORMAT, ""));
+
+        Preference qualityPrefvideo = findPreference(VIDEO_QUALITY);
+        qualityPrefvideo.setSummary(getPreferenceScreen().getSharedPreferences().getString(VIDEO_QUALITY, ""));
     }
 
     @Override
