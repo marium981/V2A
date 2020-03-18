@@ -2,25 +2,49 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/listLayout">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:descendantFocusability="blocksDescendants">
 
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:fontFamily="sans-serif-medium"
         android:textAppearance="?android:textAppearanceMedium"
         android:textColor="#2B3D4D"
-        android:background="@drawable/ic_selecter"
-        />
+        android:paddingLeft="10dp"/>
+
+    <CheckBox
+        android:id="@+id/checkbox1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:clickable="false"
+        android:descendantFocusability="blocksDescendants"
+        android:visibility="gone" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/summary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/name"
         android:fontFamily="sans-serif"
         android:textAppearance="?android:textAppearanceSmall"
         android:textColor="#AEB6BD"
-        android:background="@drawable/ic_selecter"/>
+        android:paddingLeft="10dp"/>
+
 
 </LinearLayout>

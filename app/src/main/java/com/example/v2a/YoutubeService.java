@@ -1,6 +1,7 @@
 package com.example.v2a;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.app.NotificationChannel;
@@ -128,6 +129,7 @@ public class YoutubeService extends Service {
 
                 //System.out.println(link);
                 Toast.makeText(this, "Starting Download", Toast.LENGTH_SHORT).show();
+                showStartDownloadnotif();
                 startDownload(link);
             }
         }
@@ -153,7 +155,7 @@ public class YoutubeService extends Service {
         format = sharedPreferences.getString(AUDIO_FORMAT, "0");
 
 
-        //updateYoutubeDL();
+        updateYoutubeDL();
         for(int i = 0; i<list.size(); i++) {
             showStart(list.get(i));
             String link1 = list.get(i);
@@ -179,11 +181,17 @@ public class YoutubeService extends Service {
 
             downloading = true;
             next = true;
-            Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback))
+            @SuppressLint("RestrictedApi") Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback))
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(youtubeDLResponse -> {
+
+                        builder.setContentTitle("Download complete")
+                                .setContentText("Download complete")
+                                .setProgress(0, 0, false);
+                        builder.mActions.clear();
                         scan(link1);
+
                         Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage("com.google.android.music");
                         LaunchIntent.setData(Uri.parse(file.toString()));
                         LaunchIntent.setAction(Intent.ACTION_VIEW);
@@ -193,15 +201,11 @@ public class YoutubeService extends Service {
                         intent.setAction(android.content.Intent.ACTION_VIEW);
                         intent.setDataAndType(Uri.parse(file.toString()), "audio/*");
                         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-                        builder.setContentTitle("Download complete")
-                                //.setContentText("Download complete")
-                                .setProgress(0, 0, false)
-                                .setContentIntent(pendingIntent);
-                        builder.setContentText("Download complete")
-                                .setProgress(0, 0, false);
-                        notificationManager.notify(notificationId, builder.build());
                         //progressBar.setProgress(100);
                         //tvDownloadStatus.setText(getString(R.string.download_complete));
+                        builder.setContentIntent(pendingIntent);
+
+                        notificationManager.notify(notificationId, builder.build());
                         Toast.makeText(this, "download successful", Toast.LENGTH_LONG).show();
                         downloading = false;
                         next = false;
@@ -240,6 +244,26 @@ public class YoutubeService extends Service {
         return file;
     }
 
+    private void showStartDownloadnotif(){
+        createNotificationChannel();
+
+        Intent buttonIntent = new Intent(getBaseContext(), NotificationReciever.class);
+        buttonIntent.putExtra("notificationId", notificationId);
+        PendingIntent dismissIntent = PendingIntent.getBroadcast(getBaseContext(), 0, buttonIntent, 0);
+
+        notificationManager = NotificationManagerCompat.from(this);
+        builder = new NotificationCompat.Builder(this, CHANEL_ID);
+        builder.setContentTitle("Starting Download")
+                .setSmallIcon(R.drawable.ic_download_1)
+                .setContentText("Download in progress")
+                .setStyle(new NotificationCompat.BigTextStyle())
+                .addAction(R.drawable.ic_delete, "Cancel", dismissIntent)
+                //.setGroup(GROUP_KEY_WORK_EMAIL)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        builder.setProgress(100, 0, false);
+        notificationManager.notify(notificationId, builder.build());
+    }
+
     private void showStart(String link) {
         int NOTIFICATION_ID = 1;
         //tvDownloadStatus.setText(getString(R.string.download_start));
@@ -253,26 +277,20 @@ public class YoutubeService extends Service {
         } catch (YoutubeDLException e) {
             e.printStackTrace();
         }
-        createNotificationChannel();
+        /**createNotificationChannel();
 
         Intent buttonIntent = new Intent(getBaseContext(), NotificationReciever.class);
         buttonIntent.putExtra("notificationId", notificationId);
-        PendingIntent dismissIntent = PendingIntent.getBroadcast(getBaseContext(), 0, buttonIntent, 0);
+        PendingIntent dismissIntent = PendingIntent.getBroadcast(getBaseContext(), 0, buttonIntent, 0);*/
 
         String title = "";
         if(videoInfo!=null){
             title = videoInfo.title;
             //System.out.println(title);
         }
-        notificationManager = NotificationManagerCompat.from(this);
-        builder = new NotificationCompat.Builder(this, CHANEL_ID);
         builder.setContentTitle(title)
                 .setSmallIcon(R.drawable.ic_download_1)
-                .setContentText("Download in progress")
-                .setStyle(new NotificationCompat.BigTextStyle())
-                .addAction(R.drawable.ic_delete, "Cancel", dismissIntent)
-                //.setGroup(GROUP_KEY_WORK_EMAIL)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setContentText("Download in progress");
         builder.setProgress(100, 0, false);
         notificationManager.notify(notificationId, builder.build());
     }

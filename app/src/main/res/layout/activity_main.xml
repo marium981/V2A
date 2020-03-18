@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <RelativeLayout
+        android:id="@+id/obstructor"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.75"
+        android:background="@android:color/black">
+    </RelativeLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,6 +29,7 @@
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+
     </LinearLayout>
 
 
@@ -33,17 +43,17 @@
         app:fab_addButtonColorPressed="@color/colorPrimary"
         app:fab_addButtonPlusIconColor="@android:color/white"
         app:fab_labelStyle="@style/fabstyle">
-        
+
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:fab_colorNormal="@color/colorPrimary"
             app:fab_colorPressed="@color/colorPrimary"
-            app:fab_icon="@drawable/ic_switch_video"
+            app:fab_icon="@drawable/ic_audiotrack"
             android:id="@+id/fab2"
             app:fab_size="normal"
-            app:fab_title="YouTube Converter"/>
+            app:fab_title="Audio Download"/>
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"

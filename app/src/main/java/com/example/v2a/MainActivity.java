@@ -2,6 +2,7 @@ package com.example.v2a;
 
 import android.Manifest;
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -31,18 +33,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.orhanobut.logger.Logger;
+import com.yausername.youtubedl_android.DownloadProgressCallback;
+import com.yausername.youtubedl_android.YoutubeDL;
+import com.yausername.youtubedl_android.YoutubeDLRequest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -57,11 +71,13 @@ public class MainActivity extends AppCompatActivity {
     String value1;
     InputStream in = null;
     FloatingActionsMenu fmenu = null;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         isStoragePermissionGranted();
         Intent intent = getIntent();
@@ -75,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         fmenu = (FloatingActionsMenu) findViewById(R.id.fmenu);
+
 
 
         FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
@@ -120,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
             t.commit();
 
         }
+
+
+        freeMemory();
     }
 
     @Override
@@ -241,6 +261,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    updateYoutubeDL();
+                } else {
+                    Toast.makeText(this, "Grant permission and try again", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
+
     public boolean checkPermission() {
 
         int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
@@ -345,6 +385,122 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public void freeMemory(){
+        System.runFinalization();
+        Runtime.getRuntime().gc();
+        System.gc();
+    }
+
+    private void startDownload(String quality, String format) {
+        /**if (downloading) {
+         Toast.makeText(YoutubeActivity.this, "cannot start download. a download is already in progress", Toast.LENGTH_LONG).show();
+         return;
+         }*/
+
+        System.out.println("Hello. in start download");
+        //showStart();
+        //updateYoutubeDL();
+
+        YoutubeDLRequest request = new YoutubeDLRequest("https://www.youtube.com/watch?v=Qtpn66PvyUA");
+        File youtubeDLDir = getDownloadLocation();
+        request.setOption("--update");
+        if (youtubeDLDir != null) {
+            request.setOption("-x");
+            request.setOption("--audio-format", format);
+            request.setOption("--audio-quality", quality);
+            request.setOption("--prefer-ffmpeg");
+            request.setOption("--add-metadata");
+            request.setOption("--metadata-from-title", "%(artist)s - %(title)s");
+            if (format.equals("mp3") || format.equals("m4a")) {
+                request.setOption("--embed-thumbnail");
+            }
+            request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s-%(id)s.%(ext)s");
+
+
+            Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback))
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(youtubeDLResponse -> {
+                        Toast.makeText(MainActivity.this, "download successful", Toast.LENGTH_LONG).show();
+                    }, e -> {
+                        /**builder.setContentText("Download Failed")
+                         .setProgress(0, 0, false);
+                         notificationManager.notify(notificationId, builder.build());*/
+                        Toast.makeText(MainActivity.this, "download failed", Toast.LENGTH_LONG).show();
+                        Logger.e(e, "failed to download");
+                    });
+
+            //String title = getTitleQuietly(url);
+            //Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
+            compositeDisposable.add(disposable);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        compositeDisposable.dispose();
+        super.onDestroy();
+    }
+
+    @NonNull
+    private File getDownloadLocation() {
+        /**File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+         File youtubeDLDir = new File(downloadsDir, "youtubedl-android");
+         if (!youtubeDLDir.exists()) youtubeDLDir.mkdir();
+         return youtubeDLDir;*/
+        System.out.println("Hello. in download start");
+        File root = android.os.Environment.getExternalStorageDirectory();
+        File file = new File(root.getAbsolutePath() + "/V2A");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        System.out.println(file.toString());
+        System.out.println("Hello. in download end");
+        //Toast.makeText(this, "Starting Download", Toast.LENGTH_SHORT).show();
+
+        return file;
+
+    }
+
+    private DownloadProgressCallback callback = new DownloadProgressCallback() {
+        @Override
+        public void onProgressUpdate(float progress, long etaInSeconds) {
+            runOnUiThread(() -> {
+
+                    }
+            );
+        }
+    };
+
+    private void updateYoutubeDL() {
+
+        //updating = true;
+        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().updateYoutubeDL(getApplication()))
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(status -> {
+                    switch (status) {
+                        case DONE:
+                            //Toast.makeText(YoutubeActivity.this, "update successful", Toast.LENGTH_LONG).show();
+                            break;
+                        case ALREADY_UP_TO_DATE:
+                            //Toast.makeText(YoutubeActivity.this, "already up to date", Toast.LENGTH_LONG).show();
+                            break;
+                        default:
+                            //Toast.makeText(YoutubeActivity.this, status.toString(), Toast.LENGTH_LONG).show();
+                            break;
+                    }
+
+                }, e -> {
+                    //Toast.makeText(MainActivity.this, "Update download failed", Toast.LENGTH_LONG).show();
+                    Logger.e(e, "failed to download");
+
+                });
+        compositeDisposable.add(disposable);
+        //saveSong();
+
+    }
 
 
 }

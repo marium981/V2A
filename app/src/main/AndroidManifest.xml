@@ -39,7 +39,8 @@
 
         <activity
             android:name=".YoutubeActivity"
-            android:label="YouTube Converter"></activity>
+            android:label="YouTube Converter"
+            android:parentActivityName=".MainActivity"></activity>
         <activity
             android:name=".TestActivity"
             android:label="V2A"
@@ -59,7 +60,9 @@
 
         <service
             android:name=".YoutubeService"
-            android:enabled="true" />
+            android:enabled="true" >
+
+        </service>
 
         <provider
             android:name=".SongProvider"

@@ -26,6 +26,7 @@ public class TestActivity extends Activity {
 
         if (getIntent().getExtras() != null) {
             Bundle extras = getIntent().getExtras();
+
             // Get the value from intent
             value1 = extras.getString(Intent.EXTRA_TEXT);
         }
@@ -82,6 +83,7 @@ public class TestActivity extends Activity {
                     intent.putExtra("Link", value1);
                     //intent.putExtra("Choice", choice);
                     startService(intent);
+                    stopService(intent);
                     finish();
                 }
             }
@@ -122,6 +124,7 @@ public class TestActivity extends Activity {
         intent.putExtra("Link", value1);
         //intent.putExtra("Choice", choice);
         startService(intent);
+        stopService(intent);
         finish();
     }
 

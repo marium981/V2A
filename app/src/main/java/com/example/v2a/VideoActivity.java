@@ -1,35 +1,36 @@
 package com.example.v2a;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ContentValues;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +44,6 @@ import com.yausername.youtubedl_android.YoutubeDLException;
 import com.yausername.youtubedl_android.YoutubeDLRequest;
 import com.yausername.youtubedl_android.mapper.VideoInfo;
 
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -56,20 +56,16 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-
-
-
-
-public class YoutubeActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class VideoActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor> {
     private Button btnStartDownload;
     private EditText etUrl;
     private ProgressBar progressBar;
     private TextView tvDownloadStatus;
+    private ConstraintLayout parentLayout;
     private boolean updating = false;
     Integer notificationId = 100;
     String CHANEL_ID = "personal_notification";
     File file;
-    Boolean refresh = false;
 
     private boolean downloading = false;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -82,8 +78,8 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
     String filename;
     ArrayList<String> list = new ArrayList<>();
 
-    public static final String AUDIO_QUALITY = "preference_quality";
-    public static final String AUDIO_FORMAT = "preference_format";
+    public static final String VIDEO_QUALITY = "preference_quality_video";
+    public static final String VIDEO_FORMAT = "preference_format_video";
     public static final String CHECK_BOX = "preference_box";
     public String quality = null;
     public String format = null;
@@ -109,7 +105,7 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
         //isStoragePermissionGranted();
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_youtube);
+        setContentView(R.layout.activity_video);
 
 
         initViews();
@@ -123,10 +119,11 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initViews() {
-        btnStartDownload = findViewById(R.id.btn_start_download);
-        etUrl = findViewById(R.id.et_url);
-        progressBar = findViewById(R.id.progress_bar);
-        tvDownloadStatus = findViewById(R.id.tv_status);
+        parentLayout = findViewById(R.id.parentLayout);
+        btnStartDownload = findViewById(R.id.btn_start_download_video);
+        etUrl = findViewById(R.id.et_url_video);
+        progressBar = findViewById(R.id.progress_bar_video);
+        tvDownloadStatus = findViewById(R.id.tv_status_video);
     }
 
     private void initListeners() {
@@ -136,28 +133,35 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_start_download: {
-                url = etUrl.getText().toString();
+            case R.id.btn_start_download_video: {
                 tvDownloadStatus.setText("Starting Download");
+                url = etUrl.getText().toString();
                 list.add(etUrl.getText().toString());
-                System.out.println("Hello. in on click");
+                tvDownloadStatus.setText("Starting Download");
+
                 if (StringUtils.isBlank(url)) {
                     etUrl.setError(getString(R.string.url_error));
                     return;
                 }
+                etUrl.setFocusable(false);
                 isStoragePermissionGranted();
-                //settings();
                 break;
 
             }
         }
     }
 
+    private void disableEditText() {
+        etUrl.setFocusable(false);
+        etUrl.setEnabled(false);
+        etUrl.setCursorVisible(false);
+    }
+
     public void settings(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        quality = sharedPreferences.getString(AUDIO_QUALITY, "0");
-        format = sharedPreferences.getString(AUDIO_FORMAT, "0");
-        System.out.println("Hello. in settings");
+        quality = sharedPreferences.getString(VIDEO_QUALITY, "0");
+        format = sharedPreferences.getString(VIDEO_FORMAT, "0");
+
         startDownload(quality, format);
     }
 
@@ -167,67 +171,63 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
          return;
          }*/
 
-        System.out.println("Hello. in start download");
-        //showStart();
+
         updateYoutubeDL();
-        if (downloading) {
-            //builder.setContentTitle(list.size() + " Files Downloading");
+        if(downloading){
+            //builder.setContentTitle(list.size()+ " Files Downloading");
         }
 
+        //disableEditText();
+        //parentLayout.removeView(etUrl);
 
-
+        Toast.makeText(this, "Starting Download", Toast.LENGTH_SHORT).show();
+        String f = "best[ext="+format+"]/best";
         YoutubeDLRequest request = new YoutubeDLRequest(url);
         File youtubeDLDir = getDownloadLocation();
         request.setOption("--update");
-        if (youtubeDLDir != null) {
-            request.setOption("-x");
-            request.setOption("--audio-format", format);
-            request.setOption("--audio-quality", quality);
-            request.setOption("--prefer-ffmpeg");
-            request.setOption("--add-metadata");
-            request.setOption("--metadata-from-title", "%(artist)s - %(title)s");
-            if (format.equals("mp3") || format.equals("m4a")) {
-                request.setOption("--embed-thumbnail");
-            }
-            request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s-%(id)s.%(ext)s");
+        //request.setOption("-x");
+        request.setOption("-f", f);
+        //request.setOption("--audio-quality", quality);
+        request.setOption("--prefer-ffmpeg");
+        //request.setOption("--add-metadata");
+        //request.setOption("--metadata-from-title", "%(artist)s - %(title)s");
+        //request.setOption("--embed-thumbnail");
+        request.setOption("-o", youtubeDLDir.getAbsolutePath() + "/%(title)s-%(id)s.%(ext)s");
 
 
-            downloading = true;
-            Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback))
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(youtubeDLResponse -> {
-                        tvDownloadStatus.setText("Download Complete");
-                        scan(url);
-                        showStart();
-                        Intent intent = new Intent();
-                        intent.setAction(android.content.Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.parse(file.toString()), "audio/*");
-                        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-                        builder.setContentText("Download complete")
-                                //.setProgress(0, 0, false)
-                                .setContentIntent(pendingIntent);
-                        notificationManager.notify(notificationId, builder.build());
-                        //progressBar.setProgress(100);
-                        //tvDownloadStatus.setText(getString(R.string.download_complete));
-                        Toast.makeText(YoutubeActivity.this, "download successful", Toast.LENGTH_LONG).show();
-                        downloading = false;
-                    }, e -> {
-                        /**builder.setContentText("Download Failed")
-                                .setProgress(0, 0, false);
-                        notificationManager.notify(notificationId, builder.build());*/
-                        tvDownloadStatus.setText(getString(R.string.download_failed));
-                        Toast.makeText(YoutubeActivity.this, "download failed", Toast.LENGTH_LONG).show();
-                        Logger.e(e, "failed to download");
-                        downloading = false;
-                    });
+        downloading = true;
+        Disposable disposable = Observable.fromCallable(() -> YoutubeDL.getInstance().execute(request, callback))
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(youtubeDLResponse -> {
+                    showStart();
+                    tvDownloadStatus.setText("Download Complete");
+                    scan(url);
+                    Intent intent = new Intent();
+                    intent.setAction(android.content.Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.parse(file.toString()), "audio/*");
+                    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+                    builder.setContentText("Download complete")
+                            //.setProgress(0, 0, false)
+                            .setContentIntent(pendingIntent);
+                    notificationManager.notify(notificationId, builder.build());
+                    //progressBar.setProgress(100);
+                    //tvDownloadStatus.setText(getString(R.string.download_complete));
+                    Toast.makeText(VideoActivity.this, "download successful", Toast.LENGTH_LONG).show();
+                    downloading = false;
+                }, e -> {
+                    builder.setContentText("Download Failed");
+                            //.setProgress(0, 0, false);
+                    notificationManager.notify(notificationId, builder.build());
+                    tvDownloadStatus.setText(getString(R.string.download_failed));
+                    Toast.makeText(VideoActivity.this, "download failed", Toast.LENGTH_LONG).show();
+                    Logger.e(e, "failed to download");
+                    downloading = false;
+                });
 
-            //String title = getTitleQuietly(url);
-            //Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
-            compositeDisposable.add(disposable);
-        }else{
-            Toast.makeText(YoutubeActivity.this, "File is null", Toast.LENGTH_SHORT).show();
-        }
+        //String title = getTitleQuietly(url);
+        //Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
+        compositeDisposable.add(disposable);
     }
 
 
@@ -240,18 +240,15 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
     @NonNull
     private File getDownloadLocation() {
         /**File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File youtubeDLDir = new File(downloadsDir, "youtubedl-android");
-        if (!youtubeDLDir.exists()) youtubeDLDir.mkdir();
-        return youtubeDLDir;*/
-        System.out.println("Hello. in download start");
+         File youtubeDLDir = new File(downloadsDir, "youtubedl-android");
+         if (!youtubeDLDir.exists()) youtubeDLDir.mkdir();
+         return youtubeDLDir;*/
+
         File root = android.os.Environment.getExternalStorageDirectory();
         File file = new File(root.getAbsolutePath() + "/V2A");
         if (!file.exists()) {
             file.mkdirs();
         }
-        System.out.println(file.toString());
-        System.out.println("Hello. in download end");
-        Toast.makeText(this, "Starting Download", Toast.LENGTH_SHORT).show();
 
         return file;
 
@@ -266,12 +263,13 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
         buttonIntent.putExtra("notificationId", notificationId);
         PendingIntent dismissIntent = PendingIntent.getBroadcast(getBaseContext(), 0, buttonIntent, 0);
 
-        System.out.println("Hello. in show start end");
+
         notificationManager = NotificationManagerCompat.from(this);
         builder = new NotificationCompat.Builder(this, CHANEL_ID);
-        builder.setStyle(new NotificationCompat.BigTextStyle())
-                .setSmallIcon(R.drawable.ic_download_1)
+        builder.setSmallIcon(R.drawable.ic_download_1)
+                .setStyle(new NotificationCompat.BigTextStyle())
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        notificationManager.notify(notificationId, builder.build());
     }
 
     private void createNotificationChannel(){
@@ -279,7 +277,7 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
             CharSequence name = "Personal Notification";
             String description = "Include all personal notifications";
             int importance = NotificationManager.IMPORTANCE_LOW;
-            System.out.println("Hello. in create notif");
+
             NotificationChannel notificationChannel = new NotificationChannel(CHANEL_ID, name, importance);
             notificationChannel.setDescription(description);
             NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
@@ -290,9 +288,9 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
 
     public void isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                System.out.println("Hello. in storagepermission");
+
                 settings();
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -309,6 +307,7 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     settings();
+                    //startDownload();
                 } else {
                     Toast.makeText(this, "Grant permission and try again", Toast.LENGTH_SHORT).show();
                 }
@@ -331,7 +330,6 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
         try {
             YoutubeDL.getInstance().init(getApplication());
             FFmpeg.getInstance().init(getApplication());
-            //YoutubeDL.getInstance().updateYoutubeDL(getApplication());
         } catch (YoutubeDLException e) {
             Logger.e(e, "failed to initialize youtubedl-android");
         }
@@ -361,7 +359,7 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
                     }
                     updating = false;
                 }, e -> {
-                    Toast.makeText(YoutubeActivity.this, "download failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(VideoActivity.this, "download failed", Toast.LENGTH_LONG).show();
                     Logger.e(e, "failed to download");
                     updating = false;
                 });
@@ -477,7 +475,7 @@ public class YoutubeActivity extends AppCompatActivity implements View.OnClickLi
                 SongContract.SongEntry._ID,
                 SongContract.SongEntry.COLUMN_SONG_NAME,
                 SongContract.SongEntry.COLUMN_SONG_LINK,
-                };
+        };
 
         return new CursorLoader(this,
                 mCurrentSongUri,

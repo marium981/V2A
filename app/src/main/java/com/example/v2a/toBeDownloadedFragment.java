@@ -103,6 +103,8 @@ public class toBeDownloadedFragment extends Fragment implements LoaderManager.Lo
                 return false;
             }
         });
+
+
         // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
         View emptyView = rootview.findViewById(R.id.empty_view);
         songListView.setEmptyView(emptyView);
@@ -129,8 +131,8 @@ public class toBeDownloadedFragment extends Fragment implements LoaderManager.Lo
                                 LinearLayout linearLayout = (LinearLayout) view;
                                 TextView link = (TextView) linearLayout.getChildAt(1);
                                 link1 = link.getText().toString();
-                                int index1 = link1.indexOf('"');
-                                String link2 = link1.substring(index1+1);
+                                /**int index1 = link1.indexOf('"');
+                                String link2 = link1.substring(index1+1);*/
                                 //int index2 = link2.indexOf('"');
                                 //System.out.println(index2);
 
@@ -150,7 +152,7 @@ public class toBeDownloadedFragment extends Fragment implements LoaderManager.Lo
                                     }
                                 }
 
-                                ((MainActivity)getActivity()).Intent(link2);
+                                ((MainActivity)getActivity()).Intent(link1);
                                //YoutubeService test = new YoutubeService();
                                 //test.startDownload(link1);
                                 /**Toast.makeText(getActivity(), link1, Toast.LENGTH_SHORT).show();
@@ -251,15 +253,25 @@ public class toBeDownloadedFragment extends Fragment implements LoaderManager.Lo
             buffer.readLine();
             while ((line = buffer.readLine()) != null) {
 
-                String[] str = line.split(",", 3);  // defining 3 columns with null or blank field //values acceptance
+                String[] str = line.split(",", 2);  // defining 3 columns with null or blank field //values acceptance
                 //Id, Company,Name,Price
                 String id = str[0].toString();
                 String Name = str[1].toString();
-                String link = str[2].toString();
-
-
-                contentValues.put("name", Name);
-                contentValues.put("link", link);
+                //String link = str[2].toString();
+                String name1 = id.substring(1);
+                int pos3 = name1.indexOf("\"");
+                String name;
+                if(pos3!=0) {
+                    name = name1.substring(0, pos3 + 1);
+                }else{
+                    name = name1.substring(0);
+                }
+                int pos = Name.indexOf("http");
+                String link = Name.substring(pos);
+                int pos2 = link.indexOf("\"");
+                String link2 = link.substring(0, pos2);
+                contentValues.put("name", id);
+                contentValues.put("link", link2);
                 db.insert(tablename, null, contentValues);
                 Toast.makeText(getActivity(), "Import successful", Toast.LENGTH_SHORT ).show();
             }
@@ -292,15 +304,25 @@ public class toBeDownloadedFragment extends Fragment implements LoaderManager.Lo
                 buffer.readLine();
                 while ((line = buffer.readLine()) != null) {
 
-                    String[] str = line.split(",", 3);  // defining 3 columns with null or blank field //values acceptance
+                    String[] str = line.split(",", 2);  // defining 3 columns with null or blank field //values acceptance
                     //Id, Company,Name,Price
                     String id = str[0].toString();
                     String Name = str[1].toString();
-                    String link = str[2].toString();
-
-
-                    contentValues.put("name", Name);
-                    contentValues.put("link", link);
+                    //String link = str[2].toString();
+                    String name1 = id.substring(1);
+                    int pos3 = name1.indexOf("\"");
+                    String name;
+                    if(pos3!=0) {
+                        name = name1.substring(0, pos3 + 1);
+                    }else{
+                        name = name1.substring(0);
+                    }
+                    int pos = Name.indexOf("http");
+                    String link = Name.substring(pos);
+                    int pos2 = link.indexOf("\"");
+                    String link2 = link.substring(0, pos2);
+                    contentValues.put("name", id);
+                    contentValues.put("link", link2);
                     db.insert(tablename, null, contentValues);
                     Toast.makeText(getActivity(), "Import successful", Toast.LENGTH_SHORT).show();
                 }
